@@ -7,22 +7,38 @@
 	import { zodClient } from 'sveltekit-superforms/adapters';
 
 	export let data: SuperValidated<Infer<FormSchema>>;
+	export let submit: (data: Infer<FormSchema>) => void = () => {};
 
 	const form = superForm(data, {
 		validators: zodClient(formSchema)
 	});
 
-	const { form: formData, enhance } = form;
+	const { form: formData, constraints, errors, validateForm, reset } = form;
+
+	const handleSubmit = async () => {
+		const result = await validateForm();
+		if (!result.valid) {
+			errors.update((v) => {
+				return { ...v, task: result.errors.task };
+			});
+			return;
+		}
+		submit(result.data);
+		errors.clear();
+		reset();
+	};
 </script>
 
-<form method="POST" use:enhance>
+<form on:submit|preventDefault={handleSubmit}>
 	<Form.Field {form} name="task">
 		<Form.Control let:attrs>
-			<Form.Label>Task</Form.Label>
-			<Input {...attrs} bind:value={$formData.task} />
+			<Input
+				{...attrs}
+				bind:value={$formData.task}
+				{...$constraints.task}
+				placeholder="Enter a new task here"
+			/>
 		</Form.Control>
-		<Form.Description>Enter a task to add it to the list.</Form.Description>
 		<Form.FieldErrors />
 	</Form.Field>
-	<Form.Button>Submit</Form.Button>
 </form>

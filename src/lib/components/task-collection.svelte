@@ -5,16 +5,16 @@
 	import { DragTracker, type ClientPointType, type PointerEventType } from '$lib/drag-tracker';
 	import { cn } from '$lib/utils';
 	import { flip } from 'svelte/animate';
-	import { crossfade } from 'svelte/transition';
 
-	const [send, receive] = crossfade({});
 	type TaskType = {
 		id: string;
-		name: string;
+		title: string;
 		completed?: boolean;
 	};
 
 	export let tasks: TaskType[];
+	export let changeTaskCompletionStatus: (id: string, completed: boolean) => void = () => {};
+
 	$: pending = tasks.filter((task) => !task.completed);
 	$: completed = tasks.filter((task) => task.completed);
 	const preventDefault = (event: Event) => event.preventDefault();
@@ -59,13 +59,15 @@
 			const isInCompletedArea =
 				targetPos.clientX > completedArea.left && targetPos.clientX < completedArea.right;
 			if (isInCompletedArea && !selectedTask.completed) {
-				selectedTask.completed = true;
-				tasks.push(tasks.splice(tasks.indexOf(selectedTask), 1)[0]);
-				tasks = tasks;
+				changeTaskCompletionStatus(selectedTask.id, true);
+				//selectedTask.completed = true;
+				// tasks.push(tasks.splice(tasks.indexOf(selectedTask), 1)[0]);
+				// tasks = tasks;
 			} else if (!isInCompletedArea && selectedTask.completed) {
-				selectedTask.completed = false;
-				tasks.push(tasks.splice(tasks.indexOf(selectedTask), 1)[0]);
-				tasks = tasks;
+				changeTaskCompletionStatus(selectedTask.id, false);
+				// selectedTask.completed = false;
+				// tasks.push(tasks.splice(tasks.indexOf(selectedTask), 1)[0]);
+				// tasks = tasks;
 			}
 
 			console.log(tasks);
@@ -125,7 +127,7 @@
 			<ul id="tasks" class="flex flex-row flex-wrap gap-2 p-3">
 				{#each pending as task (task.id)}
 					<li id="task {task.id.toString()}" animate:flip>
-						<TaskCard description={task.name} selected={task === selectedTask} />
+						<TaskCard description={task.title} selected={task === selectedTask} />
 					</li>
 				{/each}
 			</ul>
@@ -138,7 +140,7 @@
 					{#each completed as task, i (task.id)}
 						<div id="task {task.id.toString()}" animate:flip>
 							<TaskCard
-								description={task.name}
+								description={task.title}
 								selected={task === selectedTask}
 								class={cn(
 									'absolute left-0 right-0 mx-auto',
@@ -158,6 +160,6 @@
 		class="absolute z-30"
 		style={`left:${targetPos.clientX - offset.clientX}px;top:${targetPos.clientY - offset.clientY}px`}
 	>
-		<TaskCard description={selectedTask.name} />
+		<TaskCard description={selectedTask.title} />
 	</div>
 {/if}
