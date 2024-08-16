@@ -69,8 +69,6 @@
 				// tasks.push(tasks.splice(tasks.indexOf(selectedTask), 1)[0]);
 				// tasks = tasks;
 			}
-
-			console.log(tasks);
 		}
 		selectedTask = undefined;
 		const force = dragTracker.pointerUp(e);
@@ -103,7 +101,7 @@
 		}
 	}
 	function click(e: PointerEventType): void {
-		e.preventDefault();
+		if (selectedTask) e.preventDefault();
 	}
 </script>
 
@@ -123,7 +121,9 @@
 <div class="mx-auto px-3" bind:this={boundedAreaElement}>
 	<Resizable.PaneGroup direction="horizontal" class="min-h-96 rounded-lg border">
 		<Resizable.Pane defaultSize={80} minSize={80} class="m-2 mt-4">
-			<h1 class="text-center text-lg font-bold tracking-tight">Tasks</h1>
+			<a href="/tasks">
+				<h1 class="text-center text-lg font-bold tracking-tight">Tasks</h1>
+			</a>
 			<ul id="tasks" class="flex flex-row flex-wrap gap-2 p-3">
 				{#each pending as task (task.id)}
 					<li id="task {task.id.toString()}" animate:flip>
@@ -135,7 +135,9 @@
 		<ResizableHandle />
 		<Resizable.Pane minSize={20} class="m-2 mt-4">
 			<div bind:this={completedAreaElement}>
-				<h1 class="pb-8 text-center text-lg font-bold tracking-tight">Completed Tasks</h1>
+				<a href="/tasks">
+					<h1 class="pb-8 text-center text-lg font-bold tracking-tight">Completed Tasks</h1>
+				</a>
 				<div id="tasks" class="relative mx-auto p-3">
 					{#each completed as task, i (task.id)}
 						<div id="task {task.id.toString()}" animate:flip>

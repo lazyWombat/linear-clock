@@ -1,6 +1,5 @@
 <script lang="ts">
 	import TaskForm from './task-form.svelte';
-	import { Separator } from '$lib/components/ui/separator';
 	import { getFirebaseContext } from '$lib/stores/sdk';
 	import {
 		query,
@@ -25,7 +24,7 @@
 	let clock = timer({ interval: 1000 });
 	const firestore = getFirebaseContext().firestore!;
 	$: makeQuery = (uid: string) => {
-		const q = query(collection(firestore, 'clocks', uid, 'tasks') /*, orderBy('createdOn') */);
+		const q = query(collection(firestore, 'clocks', uid, 'tasks'), orderBy('createdOn'));
 		return q;
 	};
 
@@ -33,6 +32,7 @@
 		const { task } = data;
 		await addDoc(collection(firestore, 'clocks', uid, 'tasks'), {
 			title: task,
+			completed: false,
 			createdOn: serverTimestamp(),
 			modifiedOn: serverTimestamp()
 		});
@@ -84,7 +84,7 @@
 										{task.title}
 									</Table.Cell>
 									<Table.Cell class={cn(task.completed && 'text-muted-foreground')}>
-										{#if task && task.modifiedOn && task.modifiedOn.seconds}
+										{#if task && task.modifiedOn}
 											{format(new Date(task.modifiedOn.seconds * 1000), undefined, {
 												relativeDate: $clock
 											})}
