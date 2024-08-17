@@ -67,13 +67,13 @@
 	{#each cells.map(getSegment) as segment, i}
 		{#if !!segment.isEmpty}
 			<div />
-		{:else if i + 1 > current}
+		{:else if i - 1 > current}
 			<div
 				class="h-full min-h-24 w-full"
 				style="background-image:linear-gradient(to right,
 					hsl({i * coef}, 100%, 50%), hsl({(i + 1) * coef}, 100%, 50%))"
 			></div>
-		{:else if i + 1 === current}
+		{:else if i - 1 === current}
 			<div class="flex h-full w-full flex-row border border-black">
 				<div
 					class="h-[50%] self-end"
